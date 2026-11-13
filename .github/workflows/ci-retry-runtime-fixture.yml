@@ -1,0 +1,26 @@
+name: CI retry runtime fixture
+on:
+  push:
+    branches: ["test/ci-retry-runtime-1a4eba69"]
+  pull_request:
+    branches: ["main"]
+    paths: [".github/workflows/ci-retry-runtime-fixture.yml"]
+permissions:
+  contents: read
+jobs:
+  controlled-check:
+    if: github.ref_name == 'test/ci-retry-runtime-1a4eba69' || github.head_ref == 'test/ci-retry-runtime-1a4eba69'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Record controlled fixture
+        run: |
+          echo "Controlled plugin runtime validation; not a diagnosis of infrastructure failure."
+          echo "event=$GITHUB_EVENT_NAME sha=$GITHUB_SHA attempt=$GITHUB_RUN_ATTEMPT"
+      - name: Controlled first-attempt failure
+        run: |
+          if [ "$GITHUB_RUN_ATTEMPT" = 1 ]; then
+            echo "::error::Intentional fixture failure. Normal rerun is expected to pass."
+            exit 1
+          fi
+          echo "Normal rerun completed successfully."
